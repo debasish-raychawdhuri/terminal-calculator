@@ -1,0 +1,27 @@
+use std::str::FromStr;
+
+grammar;
+
+pub Expr: f64 = {
+    // Addition and subtraction have the lowest precedence
+    <l:Expr> "+" <r:Factor> => l + r,
+    <l:Expr> "-" <r:Factor> => l - r,
+    Factor,
+};
+
+Factor: f64 = {
+    // Multiplication and division have higher precedence
+    <l:Factor> "*" <r:Term> => l * r,
+    <l:Factor> "/" <r:Term> => l / r,
+    Term,
+};
+
+Term: f64 = {
+    // Parentheses have the highest precedence
+    "(" <Expr> ")" => <>,
+    Num,
+};
+
+Num: f64 = {
+    r"[0-9]+(?:\.[0-9]+)?" => f64::from_str(<>).unwrap(),
+};
