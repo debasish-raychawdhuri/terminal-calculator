@@ -1,0 +1,31 @@
+#!/usr/bin/expect -f
+
+# Start recording
+spawn asciinema rec --overwrite demo.cast
+
+# Wait for recording to start
+sleep 2
+
+# Start calculator
+send "cargo run --release\r"
+
+# Wait for calculator to start
+sleep 3
+
+# Send expressions
+send "5 + 3\r"
+sleep 2
+send "(2 + 3) * (4 - 1)\r"
+sleep 2
+send "(10 + (5 * 2)) / 4\r"
+sleep 2
+
+# Exit calculator
+send "\x1b"
+sleep 1
+
+# Stop recording
+send "\x03"
+
+# Wait for everything to finish
+expect eof
