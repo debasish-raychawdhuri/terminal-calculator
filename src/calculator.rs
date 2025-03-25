@@ -40,7 +40,19 @@ impl Calculator {
         }
 
         self.result = match self.evaluate_expression(expr) {
-            Ok(val) => CalculatorResult::Success(val.to_string()),
+            Ok(val) => {
+                // Format the result with appropriate rounding to handle floating point precision issues
+                // Check if the value is close to an integer
+                if (val - val.round()).abs() < 1e-10 {
+                    CalculatorResult::Success(format!("{}", val.round() as i64))
+                } else {
+                    // For floating point values, format with precision and strip trailing zeros
+                    let formatted = format!("{:.10}", val);
+                    // Remove trailing zeros and decimal point if needed
+                    let trimmed = formatted.trim_end_matches('0').trim_end_matches('.');
+                    CalculatorResult::Success(trimmed.to_string())
+                }
+            },
             Err(m) => CalculatorResult::Error(m.to_string()),
         };
         self.mode = CalculatorMode::Result;
