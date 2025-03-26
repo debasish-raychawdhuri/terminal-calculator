@@ -44,13 +44,27 @@ impl Calculator {
                 // Format the result with appropriate rounding to handle floating point precision issues
                 // Check if the value is close to an integer
                 if (val - val.round()).abs() < 1e-10 {
-                    CalculatorResult::Success(format!("{}", val.round() as i64))
+                    let rounded = val.round() as i64;
+                    // Use scientific notation for large integers
+                    if rounded.abs() > 1_000_000_000 {
+                        CalculatorResult::Success(format!("{:e}", rounded as f64))
+                    } else {
+                        CalculatorResult::Success(format!("{}", rounded))
+                    }
                 } else {
-                    // For floating point values, format with precision and strip trailing zeros
-                    let formatted = format!("{:.10}", val);
-                    // Remove trailing zeros and decimal point if needed
-                    let trimmed = formatted.trim_end_matches('0').trim_end_matches('.');
-                    CalculatorResult::Success(trimmed.to_string())
+                    // For floating point values
+                    let abs_val = val.abs();
+                    
+                    // Use scientific notation for very large or very small numbers
+                    if abs_val > 1_000_000_000.0 || (abs_val < 0.0001 && abs_val > 0.0) {
+                        CalculatorResult::Success(format!("{:e}", val))
+                    } else {
+                        // For normal range floating point values, format with precision and strip trailing zeros
+                        let formatted = format!("{:.10}", val);
+                        // Remove trailing zeros and decimal point if needed
+                        let trimmed = formatted.trim_end_matches('0').trim_end_matches('.');
+                        CalculatorResult::Success(trimmed.to_string())
+                    }
                 }
             },
             Err(m) => CalculatorResult::Error(m.to_string()),
